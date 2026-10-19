@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Columbus Daily | ERLC News & Classifieds</title>
+    <!-- Google Fonts: UnifrakturMaguntia for New York Times look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --card-bg: #111827;
+            --card-hover: #1f2937;
+            --accent: #d97706; /* Classic newspaper gold/bronze */
+            --accent-glow: rgba(217, 119, 6, 0.3);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Utility & Auth Bar */
+        .utility-bar {
+            background: #030712;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .auth-status {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .auth-btn {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .auth-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Masthead */
+        header {
+            background: var(--card-bg);
+            border-bottom: 3px double var(--border-color);
+            text-align: center;
+            padding: 2rem 1rem;
+            position: relative;
+        }
+
+        .edition-info {
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .newspaper-title {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 4rem;
+            color: var(--text-main);
+            letter-spacing: 1px;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .tagline {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-top: 0.5rem;
+        }
+
+        /* Navigation Links */
+        nav {
+            background: #0f172a;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        nav a:hover {
+            color: var(--accent);
+        }
+
+        /* Main Layout */
+        .container {
+            max-width: 1300px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            flex: 1;
+            width: 100%;
+        }
+
+        /* Category Filter Tabs */
+        .categories-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .cat-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.5rem 1.25rem;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .cat-chip:hover, .cat-chip.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Grid Layout */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Story Card */
+        .story-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .story-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px var(--accent-glow);
+        }
+
+        .story-img-container {
+            width: 100%;
+            height: 210px;
+            position: relative;
+            background: #1f2937;
+            overflow: hidden;
+        }
+
+        .story-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .premium-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .story-content {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .story-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .story-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .story-snippet {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            flex: 1;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .read-btn {
+            flex: 1;
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+
+        .read-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .delete-story-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .delete-story-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Locked Paywall Overlay */
+        .paywall-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(9, 13, 22, 0.85);
+            backdrop-filter: blur(6px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            z-index: 10;
+        }
+
+        .paywall-overlay h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .paywall-overlay p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        /* Admin Dashboard */
+        .admin-dashboard {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        /* User Table */
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .user-table th, .user-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .user-table th {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            padding: 2.5rem;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: var(--border-color);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .security-notice {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: #fca5a5;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        footer {
+            background: #030712;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Utility & Auth Bar -->
+    <div class="utility-bar">
+        <div>🔒 ERLC Secure Newspaper Portal | Cloud Database Active</div>
+        <div class="auth-status">
+            <span>Status: <strong id="current-user-display" style="text-transform: uppercase;">Guest</strong></span>
+            <button class="auth-btn" id="auth-action-btn" onclick="openLoginModal()">Log In</button>
+        </div>
+    </div>
+
+    <!-- Masthead Header -->
+    <header>
+        <div class="edition-info">Liberty County Edition — Vol. XXIV No. 18 • Est. 2026</div>
+        <h1 class="newspaper-title">The Columbus Dispatch</h1>
+        <div class="tagline">The Premier Source for Emergency Response & County Investigations</div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <a onclick="filterCategory('All')">Front Page</a>
+        <a id="nav-admin-toggle" style="display:none; color: var(--accent);" onclick="toggleAdminPanel()">⚙️ Admin Dashboard</a>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+
+        <!-- Security Notice Banner -->
+        <div class="security-notice">
+            ⚠️ <strong>Notice:</strong> You are currently browsing as a <strong>Guest</strong>. Premium articles and high-res PNG newspaper files require verified subscriber credentials.
+        </div>
+
+        <!-- Admin Dashboard Panel -->
+        <div id="admin-panel" class="admin-dashboard">
+            <div class="section-header">
+                <h2>⚙️ Admin Control Center</h2>
+                <button class="btn-primary" onclick="toggleAdminPanel()">Close Dashboard</button>
+            </div>
+
+            <!-- Category Manager -->
+            <h3 style="margin-bottom: 1rem; color: var(--accent);">📁 Manage Categories</h3>
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                <input type="text" id="new-category-input" class="form-control" placeholder="Enter new category name..." style="max-width: 300px;">
+                <button class="btn-primary" onclick="handleAddCategory()">+ Add Category</button>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+
+            <!-- Publish Story Section -->
+            <h3 style="margin-bottom: 1rem; color: var(--accent);">📰 Publish New Story or PNG Newspaper Edition</h3>
+            <form id="story-form" onsubmit="handlePublishStory(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Headline / Story Title</label>
+                        <input type="text" id="new-title" class="form-control" placeholder="e.g., Downtown Bank Heist Captured on Traffic Cam" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="new-category-select" class="form-control">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Upload Photo or Newspaper PNG</label>
+                        <input type="file" id="new-image" class="form-control" accept="image/png, image/jpeg">
+                    </div>
+                    <div class="form-group">
+                        <label>Access Level</label>
+                        <select id="new-tier" class="form-control">
+                            <option value="free">Free Public Story</option>
+                            <option value="premium">🔒 Premium Subscribers Only</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label>Full Story Content / Dispatch Log</label>
+                    <textarea id="new-content" class="form-control" placeholder="Enter full story content or notes for high-res PNG newspaper..." required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Publish to Cloud Database</button>
+            </form>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+
+            <!-- Subscribers Management -->
+            <div class="section-header" style="margin-bottom: 1rem;">
+                <h3>👥 Manage Premium Subscribers</h3>
+                <button class="btn-primary" onclick="openAddUserModal()">+ Add Subscriber Account</button>
+            </div>
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>Tier</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="user-table-body">
+                    <tr>
+                        <td>Officer_Miller</td>
+                        <td><code>securePass99</code></td>
+                        <td><span style="color: var(--accent); font-weight: bold;">Premium</span></td>
+                        <td><button class="auth-btn" style="background: var(--danger);" onclick="removeUser(this, 'Officer_Miller')">Revoke</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Categories Filter Bar -->
+        <div class="categories-bar" id="category-filters">
+            <!-- Populated dynamically -->
+        </div>
+
+        <!-- News Feed Grid -->
+        <div class="news-grid" id="news-grid">
+            <!-- Dynamically populated stories from Firebase -->
+        </div>
+
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeLoginModal()">×</button>
+            <h2 style="margin-bottom: 1.5rem;">🔑 Portal Login</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Username</label>
+                    <input type="text" id="login-username" class="form-control" placeholder="Enter username..." required>
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label>Password</label>
+                    <input type="password" id="login-password" class="form-control" placeholder="Enter password..." required>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Article Reader Modal -->
+    <div class="modal" id="story-modal">
+        <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <button class="close-modal" onclick="closeStoryModal()">×</button>
+            <div id="modal-body">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 The Columbus Dispatch — ERLC Roleplay Newspaper & Dispatch Portal. All rights reserved.</p>
+    </footer>
+
+    <!-- Firebase SDK Scripts (Modular Version) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // TODO: Replace with your actual Firebase project credentials from your Firebase Console
+        const firebaseConfig = {
+            apiKey: "AIzaSyCxAOha1fGx-uTqSbJylUXdo2AwGXXKLsM",
+            authDomain: "the-columbus-dispatch-d574e.firebaseapp.com",
+            projectId: "the-columbus-dispatch-d574e",
+            storageBucket: "the-columbus-dispatch-d574e.firebasestorage.app",
+            messagingSenderId: "917488194369",
+            appId: "1:917488194369:web:f77c64c59f7583d25f07c0"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // State variables
+        let currentUser = { username: null, role: 'guest' };
+        const adminCredentials = { username: "ColumbusDailyAdmin26", password: "NeedleInTheHaystackGoodLuck" };
+        let subscribers = [{ username: "Officer_Miller", password: "securePass99" }];
+        let categories = ['Breaking News', 'Police Blotter', 'Traffic & Weather', 'Classifieds'];
+        let currentFilter = 'All';
+        let stories = [];
+
+        // Fetch stories from Firestore globally
+        async function loadStoriesFromCloud() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "stories"));
+                stories = [];
+                querySnapshot.forEach((docSnap) => {
+                    stories.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderEverything();
+            } catch (error) {
+                console.error("Error loading stories from Firebase:", error);
+            }
+        }
+
+        // Make functions globally accessible to HTML event handlers
+        window.openLoginModal = function() {
+            if (currentUser.role !== 'guest') {
+                currentUser = { username: null, role: 'guest' };
+                document.getElementById('current-user-display').innerText = "Guest";
+                document.getElementById('auth-action-btn').innerText = "Log In";
+                document.getElementById('nav-admin-toggle').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'none';
+                renderEverything();
+                alert('You have been logged out.');
+                return;
+            }
+            document.getElementById('login-modal').style.display = 'flex';
+        }
+
+        window.closeLoginModal = function() {
+            document.getElementById('login-modal').style.display = 'none';
+        }
+
+        window.handleLogin = function(e) {
+            e.preventDefault();
+            const uInput = document.getElementById('login-username').value.trim();
+            const pInput = document.getElementById('login-password').value.trim();
+
+            if (uInput === adminCredentials.username && pInput === adminCredentials.password) {
+                currentUser = { username: uInput, role: 'admin' };
+                successfulLoginUI();
+                return;
+            }
+
+            const foundSub = subscribers.find(sub => sub.username === uInput && sub.password === pInput);
+            if (foundSub) {
+                currentUser = { username: foundSub.username, role: 'subscriber' };
+                successfulLoginUI();
+                return;
+            }
+
+            alert('Invalid username or password.');
+        }
+
+        function successfulLoginUI() {
+            window.closeLoginModal();
+            document.getElementById('current-user-display').innerText = `${currentUser.username} (${currentUser.role})`;
+            document.getElementById('auth-action-btn').innerText = "Log Out";
+
+            if (currentUser.role === 'admin') {
+                document.getElementById('nav-admin-toggle').style.display = 'block';
+                alert('Welcome back, Administrator!');
+            } else {
+                alert(`Welcome, ${currentUser.username}! Premium access granted.`);
+            }
+
+            renderEverything();
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+        }
+
+        window.toggleAdminPanel = function() {
+            if (currentUser.role !== 'admin') {
+                alert('Access Denied: Admin privileges required.');
+                return;
+            }
+            const panel = document.getElementById('admin-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        window.handleAddCategory = function() {
+            const input = document.getElementById('new-category-input');
+            const newCat = input.value.trim();
+            if (!newCat) return;
+
+            if (categories.map(c => c.toLowerCase()).includes(newCat.toLowerCase())) {
+                alert('This category already exists!');
+                return;
+            }
+
+            categories.push(newCat);
+            input.value = '';
+            renderCategories();
+            alert(`Category "${newCat}" added successfully!`);
+        }
+
+        function renderCategories() {
+            const filterBar = document.getElementById('category-filters');
+            filterBar.innerHTML = `<button class="cat-chip ${currentFilter === 'All' ? 'active' : ''}" onclick="filterCategory('All')">All Stories</button>`;
+            
+            categories.forEach(cat => {
+                const isActive = currentFilter.toLowerCase() === cat.toLowerCase() ? 'active' : '';
+                filterBar.innerHTML += `<button class="cat-chip ${isActive}" onclick="filterCategory('${cat}')">${cat}</button>`;
+            });
+
+            const select = document.getElementById('new-category-select');
+            select.innerHTML = '';
+            categories.forEach(cat => {
+                select.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+        }
+
+        window.filterCategory = function(category) {
+            currentFilter = category;
+            renderEverything();
+        }
+
+        function renderStories() {
+            const grid = document.getElementById('news-grid');
+            grid.innerHTML = '';
+
+            const filtered = currentFilter === 'All' 
+                ? stories 
+                : stories.filter(s => s.category.toLowerCase() === currentFilter.toLowerCase());
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: 2rem;">No stories found in this category.</p>`;
+                return;
+            }
+
+            filtered.forEach(story => {
+                const isLocked = story.tier === 'premium' && currentUser.role === 'guest';
+                const isAdmin = currentUser.role === 'admin';
+                
+                const card = document.createElement('div');
+                card.className = 'story-card';
+                
+                card.innerHTML = `
+                    <div class="story-img-container">
+                        ${story.tier === 'premium' ? '<span class="premium-badge">🔒 Premium</span>' : ''}
+                        <img src="${story.image}" alt="${story.title}">
+                        ${isLocked ? `
+                            <div class="paywall-overlay">
+                                <h4>Subscribers Only Edition</h4>
+                                <p>Log in with a verified Premium or Admin account to view this story & attached PNG files.</p>
+                                <button class="btn-primary" onclick="openLoginModal()">Log In Now</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="story-content">
+                        <span class="story-category">${story.category}</span>
+                        <h3 class="story-title">${story.title}</h3>
+                        <p class="story-snippet">${story.snippet}</p>
+                        <div class="card-actions">
+                            <button class="read-btn" onclick="openStory('${story.id}')">Read Full Dispatch</button>
+                            ${isAdmin ? `<button class="delete-story-btn" onclick="deleteStoryFromCloud('${story.id}')">🗑️ Delete</button>` : ''}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderEverything() {
+            renderCategories();
+            renderStories();
+        }
+
+        window.openStory = function(id) {
+            const story = stories.find(s => s.id === id);
+            if (story.tier === 'premium' && currentUser.role === 'guest') {
+                alert('This story is restricted to Premium Subscribers and Admins. Please log in.');
+                return;
+            }
+
+            const modalBody = document.getElementById('modal-body');
+            modalBody.innerHTML = `
+                <span class="story-category">${story.category}</span>
+                <h2 style="font-size: 1.8rem; margin: 0.5rem 0 1rem 0;">${story.title}</h2>
+                <img src="${story.image}" style="width:100%; height:320px; object-fit:cover; border-radius:8px; margin-bottom:1.5rem;" alt="Article Image">
+                <div style="color: var(--text-main); line-height: 1.7; font-size: 1.05rem; white-space: pre-line;">
+                    ${story.content}
+                </div>
+            `;
+            document.getElementById('story-modal').style.display = 'flex';
+        }
+
+        window.closeStoryModal = function() {
+            document.getElementById('story-modal').style.display = 'none';
+        }
+
+        // Permanently Delete Story from Firebase Firestore
+        window.deleteStoryFromCloud = async function(id) {
+            if (confirm('Permanently delete this story for everyone globally?')) {
+                try {
+                    await deleteDoc(doc(db, "stories", id));
+                    alert('Story permanently deleted from database.');
+                    loadStoriesFromCloud(); // Refresh feed
+                } catch (error) {
+                    console.error("Error deleting document: ", error);
+                    alert('Failed to delete story.');
+                }
+            }
+        }
+
+        // Publish Story Permanently to Firebase Firestore
+        window.handlePublishStory = async function(e) {
+            e.preventDefault();
+            const title = document.getElementById('new-title').value;
+            const category = document.getElementById('new-category-select').value;
+            const tier = document.getElementById('new-tier').value;
+            const content = document.getElementById('new-content').value;
+            const imageInput = document.getElementById('new-image');
+
+            let imageUrl = "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=800&q=80"; // fallback
+            
+            if (imageInput.files && imageInput.files[0]) {
+                imageUrl = URL.createObjectURL(imageInput.files[0]);
+            }
+
+            const newStoryData = {
+                title,
+                category,
+                tier,
+                image: imageUrl,
+                snippet: content.substring(0, 100) + '...',
+                content,
+                createdAt: Date.now()
+            };
+
+            try {
+                await addDoc(collection(db, "stories"), newStoryData);
+                alert('Success! Story published permanently to the cloud for all visitors.');
+                document.getElementById('story-form').reset();
+                toggleAdminPanel();
+                loadStoriesFromCloud(); // Refresh feed
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                alert('Error publishing story to database.');
+            }
+        }
+
+        window.openAddUserModal = function() {
+            const username = prompt("Enter new subscriber username:");
+            if (!username) return;
+            const password = prompt(`Enter temporary password for ${username}:`);
+            if (!password) return;
+
+            subscribers.push({ username, password });
+            
+            const tbody = document.getElementById('user-table-body');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${username}</td>
+                <td><code>${password}</code></td>
+                <td><span style="color: var(--accent); font-weight: bold;">Premium</span></td>
+                <td><button class="auth-btn" style="background: var(--danger);" onclick="removeUser(this, '${username}')">Revoke</button></td>
+            `;
+            tbody.appendChild(row);
+            alert(`Subscriber account created successfully for ${username}!`);
+        }
+
+        window.removeUser = function(btn, username) {
+            if (confirm(`Are you sure you want to delete subscriber ${username}?`)) {
+                subscribers = subscribers.filter(s => s.username !== username);
+                btn.closest('tr').remove();
+                alert(`Subscriber ${username} has been removed.`);
+            }
+        }
+
+        // Initial launch: Load stories from cloud database on startup
+        window.onload = () => {
+            loadStoriesFromCloud();
+        };
+    </script>
+</body>
+</html>
